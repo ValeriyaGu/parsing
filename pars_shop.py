@@ -6,20 +6,29 @@ url = 'https://scrapingclub.com/exercise/list_basic/?page=1'
 response = requests.get(url)
 
 soup = BeautifulSoup(response.text, 'lxml')
-name_elements = soup.find_all('h4', class_='card-title')
-price_elements = soup.find_all('h5', class_='')
+items = soup.find_all('div', class_='col-lg-4 col-md-6 mb-4')
 
-for i in range(0, len(name_elements)):
-    print(f'{i}: {price_elements[i].text} за {name_elements[i].text.strip()}')
-    # print(str(i) + ": " + price_elements[i].text + " за " + name_elements[i].text.strip())
+for n, i in enumerate(items, start=1):
+    itemName = i.find('h4', class_='card-title').text.strip()
+    itemPrice = i.find('h5').text
+    print(f'{n}: {itemPrice} за {itemName}')
 
-# authors = soup.find_all('small', class_='author')
-# tags = soup.find_all('div', class_='tags')
-#
-# for i in range(0, len(quotes)):
-#     print(quotes[i].text)
-#     print("--" + authors[i].text)
-#     tagsforquote = tags[i].find_all('a', class_='tag')
-#     for tagforquote in tagsforquote:
-#         print(tagforquote.text)
-#     print()
+pages = soup.find('ul', class_='pagination')
+urls = []
+links = pages.find_all('a', class_='page-link')
+
+for link in links:
+    pageNum = int(link.text) if link.text.isdigit() else None
+    if pageNum != None:
+        hrefval = link.get('href')
+        urls.append(hrefval)
+
+for slug in urls:
+    newUrl = url.replace('?page=1', slug)
+    response = requests.get(newUrl)
+    soup = BeautifulSoup(response.text, 'lxml')
+    items = soup.find_all('div', class_='col-lg-4 col-md-6 mb-4')
+    for n, i in enumerate(items, start=n):
+        itemName = i.find('h4', class_='card-title').text.strip()
+        itemPrice = i.find('h5').text
+        print(f'{n}: {itemPrice} за {itemName}')
