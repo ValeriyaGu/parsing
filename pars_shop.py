@@ -9,6 +9,7 @@ response = requests.get(url)
 soup = BeautifulSoup(response.text, 'lxml')
 items = soup.find_all('div', class_='col-lg-4 col-md-6 mb-4')
 
+
 data = {'item': [], 'price': []}
 
 for n, i in enumerate(items, start=1):
